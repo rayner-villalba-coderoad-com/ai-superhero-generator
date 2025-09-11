@@ -1,0 +1,7 @@
+node_modules
+.serverless
+nodejs/**
+layer_content.zip
+.DS_Store
+.vscode
+.env

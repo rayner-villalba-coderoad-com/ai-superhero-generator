@@ -1,0 +1,241 @@
+body { 
+  font-family: system-ui, -apple-system, Segoe UI, Roboto; 
+  margin: 20px; 
+  width: 100%; 
+  text-align: center; 
+}
+video, canvas, img { 
+  width: 320px; 
+  height: 240px; 
+  border-radius: 12px; 
+  border: 1px solid #ddd; 
+}
+.row { 
+  display: flex; 
+  gap: 2rem; 
+  flex-wrap: wrap; 
+  align-items: flex-start; 
+  justify-content: center;
+
+}
+button { 
+  padding: 10px 16px; 
+  border-radius: 10px; 
+  border: 1px solid #bbb; 
+  cursor: pointer; 
+}
+#status { 
+  margin-top: 10px; 
+}
+.hidden {
+  display: none;
+}
+
+.card { 
+  padding: 12px; 
+  border: 1px solid #eee; 
+  border-radius: 12px; 
+  max-width: 40%; 
+}
+.result { 
+  font-size: 1.1rem; 
+  margin-top: 8px; 
+}
+
+.top-0 {
+    top: 0px;
+}
+
+.left-0 {
+    left: 0px;
+}
+.absolute {
+    position: absolute;
+}
+.w-full {
+    width: 100%;
+}
+.z-30 {
+    z-index: 30;
+}
+
+.nav-bar {
+    --tw-bg-opacity: 1;
+    background-color: rgb(9 14 20 / var(--tw-bg-opacity, 1));
+}
+
+.wrapper {
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    padding-top: 1.3rem;
+    padding-bottom: 1.3rem;
+}
+
+@media (min-width: 768px) {
+    .wrapper {
+        padding-left:2.5rem;
+        padding-right: 2.5rem
+    }
+}
+
+@media (min-width: 1440px) {
+    .wrapper {
+        max-width:1440px
+    }
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.items-center {
+    align-items: center;
+}
+.flex-wrap {
+    flex-wrap: wrap;
+}
+.flex {
+    display: flex
+;
+}
+*, ::before, ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: currentColor /* 2 */;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+.items-center {
+    align-items: center;
+}
+.flex-wrap {
+    flex-wrap: wrap;
+}
+.flex {
+    display: flex;
+}
+
+.leading-none {
+    line-height: 1;
+}
+.my-0 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+.nav-scrolled .nav-bar .nav-logo {
+    --tw-scale-x: .95;
+    --tw-scale-y: .95;
+    transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+@media (min-width: 980px) {
+    .lg\:w-60 {
+        width: 15rem;
+    }
+}
+.transition-transform {
+    transition-property: transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 500ms;
+}
+.py-4 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+        .centered-div {
+            /* 1. Position relative to the viewport */
+            position: fixed;
+
+            /* 2. Move the top-left corner of the div to the screen's center */
+            top: 50%;
+            left: 50%;
+
+            /* 3. Translate the div back by 50% of ITS OWN width and height */
+            transform: translate(-50%, -50%);
+
+            /* --- For demonstration --- */
+            width: 100%; /* Give it a specific width, not 100% */
+            padding: 2rem;
+            background-color: white;
+        }
+*,::before,::after {
+    --tw-border-spacing-x: 0;
+    --tw-border-spacing-y: 0;
+    --tw-translate-x: 0;
+    --tw-translate-y: 0;
+    --tw-rotate: 0;
+    --tw-skew-x: 0;
+    --tw-skew-y: 0;
+    --tw-scale-x: 1;
+    --tw-scale-y: 1;
+    --tw-pan-x: ;
+    --tw-pan-y: ;
+    --tw-pinch-zoom: ;
+    --tw-scroll-snap-strictness: proximity;
+    --tw-gradient-from-position: ;
+    --tw-gradient-via-position: ;
+    --tw-gradient-to-position: ;
+    --tw-ordinal: ;
+    --tw-slashed-zero: ;
+    --tw-numeric-figure: ;
+    --tw-numeric-spacing: ;
+    --tw-numeric-fraction: ;
+    --tw-ring-inset: ;
+    --tw-ring-offset-width: 0px;
+    --tw-ring-offset-color: #fff;
+    --tw-ring-color: rgb(59 130 246 / 0.5);
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+    --tw-shadow-colored: 0 0 #0000;
+    --tw-blur: ;
+    --tw-brightness: ;
+    --tw-contrast: ;
+    --tw-grayscale: ;
+    --tw-hue-rotate: ;
+    --tw-invert: ;
+    --tw-saturate: ;
+    --tw-sepia: ;
+    --tw-drop-shadow: ;
+    --tw-backdrop-blur: ;
+    --tw-backdrop-brightness: ;
+    --tw-backdrop-contrast: ;
+    --tw-backdrop-grayscale: ;
+    --tw-backdrop-hue-rotate: ;
+    --tw-backdrop-invert: ;
+    --tw-backdrop-opacity: ;
+    --tw-backdrop-saturate: ;
+    --tw-backdrop-sepia: ;
+    --tw-contain-size: ;
+    --tw-contain-layout: ;
+    --tw-contain-paint: ;
+    --tw-contain-style:
+}
+
+::selection {
+    --tw-bg-opacity: 1;
+    background-color: rgb(147 11 245 / var(--tw-bg-opacity, 1));
+    --tw-text-opacity: 1;
+    color: rgb(255 255 255 / var(--tw-text-opacity, 1))
+}
+
+.container {
+  position: absolute;
+  top: 5rem;
+  left: 0;
+  width: 100%;
+  height: 90vh;
+}
+.options {
+  padding: 1rem;
+  align-items: flex-end;
+  width: 100%;
+  justify-content: flex-end;
+  position: fixed;
+}

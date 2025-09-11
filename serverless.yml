@@ -1,0 +1,131 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: upbaws2025
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: serverless-celebrity-finder
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+  httpApi:
+    cors:
+      allowedOrigins:
+        - "*"   # frontend origin
+      allowedMethods:
+        - "*"
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      allowCredentials: false
+  # Uncomment to easily set up a custom domain. Read the docs for more details:
+  # https://www.serverless.com/framework/docs/providers/aws/guide/domains
+  # domain: api.example.com
+  environment:
+    UPLOAD_BUCKET: coderoad-upload-aws-community
+    RESULTS_BUCKET: coderoad-results-aws-community
+    SAGEMAKER_ENDPOINT: ${ssm:/CODEROAD_SAGEMAKER_ENDPOINT} 
+    GOOGLE_API_KEY: ${ssm:/CODEROAD_GOOGLE_API_KEY} # This value comes from AWS System Manager > Parameter Store
+  iam:
+    role:
+      statements:
+        - Effect: "Allow"
+          Action:
+            - s3:PutObject
+            - s3:GetObject
+            - s3:ListBucket
+          Resource:
+            - arn:aws:s3:::${self:provider.environment.UPLOAD_BUCKET}
+            - arn:aws:s3:::${self:provider.environment.UPLOAD_BUCKET}/*
+            - arn:aws:s3:::${self:provider.environment.RESULTS_BUCKET}
+            - arn:aws:s3:::${self:provider.environment.RESULTS_BUCKET}/*
+        - Effect: "Allow"
+          Action:
+            - rekognition:RecognizeCelebrities
+            - rekognition:CompareFaces
+          Resource: "*"
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .gitignore
+    - README.md
+    - .serverless/**
+    - package-lock.json
+    - nodejs/**
+    - public/**
+    - layer_content.zip
+
+functions:
+  getUploadUrl:
+    handler: src/getUploadUrl.handler
+    layers:
+      - { Ref: CoderoadDependenciesLambdaLayer }
+    events:
+      - httpApi:
+          path: /upload-url
+          method: POST
+
+  getResultUrl:
+    handler: src/getResultUrl.handler
+    layers:
+      - { Ref: CoderoadDependenciesLambdaLayer }
+    events:
+      - httpApi:
+          path: /result-url
+          method: POST
+
+  processImage:
+    handler: src/processImageV2.handler
+    timeout: 300
+    layers:
+      - { Ref: CoderoadDependenciesLambdaLayer }
+    events:
+      - s3:
+          bucket: ${self:provider.environment.UPLOAD_BUCKET}
+          event: s3:ObjectCreated:Put
+          existing: true
+
+layers: 
+  coderoadDependencies:
+    name: 'coderoad-serverless-dependencies'
+    compatibleRuntimes:
+      - nodejs20.x
+    package:
+      artifact: layer_content.zip
+# resources:
+#   Resources:
+#     UploadBucket:
+#       Type: AWS::S3::Bucket
+#       DeletionPolicy: Retain
+#       Properties:
+#         BucketName: ${self:provider.environment.UPLOAD_BUCKET}
+#         CorsConfiguration:
+#           CorsRules:
+#             - AllowedMethods:
+#                 - PUT
+#                 - POST
+#                 - GET
+#                 - DELETE
+#               AllowedOrigins:
+#                 - "*"
+#               AllowedHeaders:
+#                 - "*"
+#               MaxAge: 3000
+#     ResultsBucket:
+#       Type: AWS::S3::Bucket
+#       DeletionPolicy: Retain
+#       Properties:
+#         BucketName: ${self:provider.environment.RESULTS_BUCKET}
+#         CorsConfiguration:
+#           CorsRules:
+#             - AllowedMethods:
+#                 - PUT
+#                 - POST
+#                 - GET
+#                 - DELETE
+#               AllowedOrigins:
+#                 - "*"
+#               AllowedHeaders:
+#                 - "*"
+#               MaxAge: 3000
+    
