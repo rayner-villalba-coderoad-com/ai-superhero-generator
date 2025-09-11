@@ -92,40 +92,40 @@ layers:
       - nodejs20.x
     package:
       artifact: layer_content.zip
-# resources:
-#   Resources:
-#     UploadBucket:
-#       Type: AWS::S3::Bucket
-#       DeletionPolicy: Retain
-#       Properties:
-#         BucketName: ${self:provider.environment.UPLOAD_BUCKET}
-#         CorsConfiguration:
-#           CorsRules:
-#             - AllowedMethods:
-#                 - PUT
-#                 - POST
-#                 - GET
-#                 - DELETE
-#               AllowedOrigins:
-#                 - "*"
-#               AllowedHeaders:
-#                 - "*"
-#               MaxAge: 3000
-#     ResultsBucket:
-#       Type: AWS::S3::Bucket
-#       DeletionPolicy: Retain
-#       Properties:
-#         BucketName: ${self:provider.environment.RESULTS_BUCKET}
-#         CorsConfiguration:
-#           CorsRules:
-#             - AllowedMethods:
-#                 - PUT
-#                 - POST
-#                 - GET
-#                 - DELETE
-#               AllowedOrigins:
-#                 - "*"
-#               AllowedHeaders:
-#                 - "*"
-#               MaxAge: 3000
+resources:
+  Resources:
+    UploadBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: ${self:provider.environment.UPLOAD_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedMethods:
+                - PUT
+                - POST
+                - GET
+                - DELETE
+              AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              MaxAge: 3000
+    ResultsBucket:
+      Type: AWS::S3::Bucket
+      DeletionPolicy: Retain
+      Properties:
+        BucketName: ${self:provider.environment.RESULTS_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedMethods:
+                - PUT
+                - POST
+                - GET
+                - DELETE
+              AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+              MaxAge: 3000
     

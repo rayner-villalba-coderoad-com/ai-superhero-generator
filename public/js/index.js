@@ -114,7 +114,8 @@ function renderResult({comicImage, detected, confidence, method, processedAt, sp
   }
   
   if (!detected) {
-    resultEl.innerHTML = `<b>Vision: </b> ${spanishVision} <br/><b>Method: </b> ${method}<br/> <b>Processed at: </b> ${new Date(processedAt).toLocaleString()}`;
+    //resultEl.innerHTML = `<b>Vision: </b> ${spanishVision} <br/><b>Method: </b> ${method}<br/> <b>Processed at: </b> ${new Date(processedAt).toLocaleString()}`;
+    resultEl.innerHTML = `<b>Arquitecto del Cambio: </b> <p class="description">${spanishVision}</p> <br/>`;
     return;
   }
 

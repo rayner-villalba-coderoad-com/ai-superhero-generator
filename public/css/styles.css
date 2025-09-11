@@ -239,3 +239,7 @@ button {
   justify-content: flex-end;
   position: fixed;
 }
+.description {
+  text-align: justify;
+  font-size: 1rem;
+}
