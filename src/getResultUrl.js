@@ -2,7 +2,7 @@ import { S3Client, HeadObjectCommand, GetObjectCommand } from "@aws-sdk/client-s
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client({});
-
+const BUCKET_NAME = process.env.UPLOAD_BUCKET;
 export const handler = async (event) => {
    const headers = {
     'Access-Control-Allow-Origin': '*', // allow all origins
@@ -16,15 +16,11 @@ export const handler = async (event) => {
     return { statusCode: 400, body: "Missing key" };
   }
   const resultKey = `results/${key.replace(/^uploads\//, "").replace(/\.jpg$/i, "")}.json`;
-  console.log('resultKey: ', resultKey);
-  console.log('Bucket: ', process.env.RESULTS_BUCKET);
   try {
     const metadata = await s3.send(new HeadObjectCommand({
-      Bucket: process.env.RESULTS_BUCKET,
+      Bucket: BUCKET_NAME,
       Key: resultKey,
     }));
-  
-    console.log("S3 HeadObject metadata:", JSON.stringify(metadata, null, 2));
   } catch (err) {
     console.log('error: ', err);
     if (err.name === "NotFound" || err.$metadata?.httpStatusCode === 404) {
@@ -39,11 +35,10 @@ export const handler = async (event) => {
   }
 
   const getCmd = new GetObjectCommand({
-    Bucket: process.env.RESULTS_BUCKET,
+    Bucket: BUCKET_NAME,
     Key: resultKey,
   });
   const resultUrl = await getSignedUrl(s3, getCmd, { expiresIn: 300 }); // 1 min
-  console.log('result_Url: ', resultUrl);
   return {
     statusCode: 200,
     headers,

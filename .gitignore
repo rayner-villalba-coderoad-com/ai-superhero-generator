@@ -5,3 +5,5 @@ layer_content.zip
 .DS_Store
 .vscode
 .env
+
+client/node_modules/**

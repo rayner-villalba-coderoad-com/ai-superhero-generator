@@ -1,11 +1,12 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
 org: upbaws2025
 # "service" is the name of this project. This will also be added to your AWS resource names.
-service: serverless-celebrity-finder
+service: serverless-ai-superhero-generator
 
 provider:
   name: aws
   runtime: nodejs20.x
+  region: us-east-1
 
   httpApi:
     cors:
@@ -21,10 +22,12 @@ provider:
   # https://www.serverless.com/framework/docs/providers/aws/guide/domains
   # domain: api.example.com
   environment:
-    UPLOAD_BUCKET: coderoad-upload-aws-community
+    UPLOAD_BUCKET: coderoad-aws-community
     RESULTS_BUCKET: coderoad-results-aws-community
+    PAGE_BUCKET: coderoad-ai-superhero-page
     SAGEMAKER_ENDPOINT: ${ssm:/CODEROAD_SAGEMAKER_ENDPOINT} 
     GOOGLE_API_KEY: ${ssm:/CODEROAD_GOOGLE_API_KEY} # This value comes from AWS System Manager > Parameter Store
+    DYNAMO_TABLE: coderoad-dynamodb-aws-community
   iam:
     role:
       statements:
@@ -43,6 +46,13 @@ provider:
             - rekognition:RecognizeCelebrities
             - rekognition:CompareFaces
           Resource: "*"
+        - Effect: "Allow"
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:GetItem
+          Resource:
+            - arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMO_TABLE}
 package:
   exclude:
     - node_modules/**
@@ -53,16 +63,17 @@ package:
     - package-lock.json
     - nodejs/**
     - public/**
+    - client/**
     - layer_content.zip
 
 functions:
-  getUploadUrl:
-    handler: src/getUploadUrl.handler
+  saveProfile:
+    handler: src/saveProfile.handler
     layers:
       - { Ref: CoderoadDependenciesLambdaLayer }
     events:
       - httpApi:
-          path: /upload-url
+          path: /save-profile
           method: POST
 
   getResultUrl:
@@ -84,6 +95,8 @@ functions:
           bucket: ${self:provider.environment.UPLOAD_BUCKET}
           event: s3:ObjectCreated:Put
           existing: true
+          rules:
+            - prefix: uploads/
 
 layers: 
   coderoadDependencies:
@@ -94,6 +107,17 @@ layers:
       artifact: layer_content.zip
 resources:
   Resources:
+    DynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:provider.environment.DYNAMO_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
     UploadBucket:
       Type: AWS::S3::Bucket
       DeletionPolicy: Retain
@@ -111,21 +135,21 @@ resources:
               AllowedHeaders:
                 - "*"
               MaxAge: 3000
-    ResultsBucket:
-      Type: AWS::S3::Bucket
-      DeletionPolicy: Retain
-      Properties:
-        BucketName: ${self:provider.environment.RESULTS_BUCKET}
-        CorsConfiguration:
-          CorsRules:
-            - AllowedMethods:
-                - PUT
-                - POST
-                - GET
-                - DELETE
-              AllowedOrigins:
-                - "*"
-              AllowedHeaders:
-                - "*"
-              MaxAge: 3000
+    # ResultsBucket:
+    #   Type: AWS::S3::Bucket
+    #   DeletionPolicy: Retain
+    #   Properties:
+    #     BucketName: ${self:provider.environment.RESULTS_BUCKET}
+    #     CorsConfiguration:
+    #       CorsRules:
+    #         - AllowedMethods:
+    #             - PUT
+    #             - POST
+    #             - GET
+    #             - DELETE
+    #           AllowedOrigins:
+    #             - "*"
+    #           AllowedHeaders:
+    #             - "*"
+    #           MaxAge: 3000
     
