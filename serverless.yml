@@ -23,7 +23,6 @@ provider:
   # domain: api.example.com
   environment:
     UPLOAD_BUCKET: coderoad-aws-community
-    RESULTS_BUCKET: coderoad-results-aws-community
     PAGE_BUCKET: coderoad-ai-superhero-page
     SAGEMAKER_ENDPOINT: ${ssm:/CODEROAD_SAGEMAKER_ENDPOINT} 
     GOOGLE_API_KEY: ${ssm:/CODEROAD_GOOGLE_API_KEY} # This value comes from AWS System Manager > Parameter Store
@@ -39,8 +38,6 @@ provider:
           Resource:
             - arn:aws:s3:::${self:provider.environment.UPLOAD_BUCKET}
             - arn:aws:s3:::${self:provider.environment.UPLOAD_BUCKET}/*
-            - arn:aws:s3:::${self:provider.environment.RESULTS_BUCKET}
-            - arn:aws:s3:::${self:provider.environment.RESULTS_BUCKET}/*
         - Effect: "Allow"
           Action:
             - rekognition:RecognizeCelebrities
@@ -135,21 +132,4 @@ resources:
               AllowedHeaders:
                 - "*"
               MaxAge: 3000
-    # ResultsBucket:
-    #   Type: AWS::S3::Bucket
-    #   DeletionPolicy: Retain
-    #   Properties:
-    #     BucketName: ${self:provider.environment.RESULTS_BUCKET}
-    #     CorsConfiguration:
-    #       CorsRules:
-    #         - AllowedMethods:
-    #             - PUT
-    #             - POST
-    #             - GET
-    #             - DELETE
-    #           AllowedOrigins:
-    #             - "*"
-    #           AllowedHeaders:
-    #             - "*"
-    #           MaxAge: 3000
     

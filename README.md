@@ -27,7 +27,6 @@ A serverless application that uses AWS Lambda, API Gateway, S3, and Rekognition 
 
 ## Environment Variables
 - `UPLOAD_BUCKET`: S3 bucket for uploads
-- `RESULTS_BUCKET`: S3 bucket for results
 - `SAGEMAKER_ENDPOINT`: SageMaker endpoint name this value comes from AWS Parameter Store
 - `GOOGLE_API_KEY`: Google API key for additional features
 
@@ -59,7 +58,7 @@ curl -X POST https://<api-id>.execute-api.<region>.amazonaws.com/result-url
 
 ## Project Structure
 - `src/` - Lambda function source code
-- `public/` - Frontend static files
+- `client/` - React Frontend Application
 - `serverless.yml` - Serverless Framework config
 - `layer_content.zip` - Lambda layer dependencies
 
