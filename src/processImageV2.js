@@ -1,5 +1,4 @@
 import { S3Client, GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { GoogleGenAI } from "@google/genai";
 
 import { Upload } from "@aws-sdk/lib-storage";
@@ -69,10 +68,10 @@ async function updateItemInTable(id, payload) {
   }
 }
 
-async function generateQrCode(key) {
+async function generateQrCode(key, userId) {
   try {
     const originalFilekey = key.replace(/^uploads\//, "").replace(/\.jpg$/i, "");
-    const urlToEncode = `${S3_PAGE_URL}/index.html?key=${encodeURIComponent(originalFilekey)}`;
+    const urlToEncode = `${S3_PAGE_URL}/index.html?key=${encodeURIComponent(userId)}`;
     const qrCodeBuffer = await qrcode.toBuffer(urlToEncode, {
       errorCorrectionLevel: "H",  // better resilience if damaged
       type: "png",
@@ -292,47 +291,63 @@ export const handler = async (event) => {
 
   const bucket = rec.s3.bucket.name;
   const key = decodeURIComponent(rec.s3.object.key.replace(/\+/g, " "));
+  try {
+    // 1. Download uploaded image and its metadata
+    const getObjectCmd = new GetObjectCommand({ Bucket: bucket, Key: key });
+    const obj = await s3.send(getObjectCmd);
+    const imageMetadata = obj.Metadata;
+    
+    // 2. Efficiently convert the body stream to a buffer
+    const bytes = await streamToBuffer(obj.Body);
 
-  // Download uploaded image
-  const obj = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
+    // 3. Execute independent tasks in parallel to reduce latency
+    console.log("Starting parallel execution of QR code generation and AI image conversion.");
+    const [qrCodeImageUrl, comicResult] = await Promise.all([
+      generateQrCode(key, imageMetadata?.userid),
+      convertImageToComic(bytes, key, imageMetadata)
+    ]);
+    console.log("Parallel tasks completed.");
 
-  const imageMetadata = obj.Metadata;
-  const bytes = await streamToBuffer(obj.Body);
-  // Generate QR code linking to the image
-  const qrCodeImageUrl = await generateQrCode(key);
-  // 1) Convert image in a superhero
-  const result = await convertImageToComic(bytes, key, imageMetadata);
+    // 4. Construct the final JSON payload from the results
+    const payload = {
+      ...imageMetadata,
+      imageKey: key,
+      qrCodeImageUrl: qrCodeImageUrl || '',
+      comicImage: comicResult?.s3_locations || 'None Superhero',
+      superHeroName: comicResult?.superHeroName || 'Unknown Hero',
+      spanishSuperHeroName: comicResult?.spanishSuperHeroName || 'Héroe Desconocido',
+      vision: comicResult?.vision || '',
+      spanishVision: comicResult?.spanishVision || '',
+      processedAt: new Date().toISOString(),
+    };
 
-  // 2) Final JSON payload
-  const payload = {
-    ...imageMetadata,
-    imageKey: key,
-    qrCodeImageUrl: qrCodeImageUrl || '',
-    comicImage: result?.s3_locations || 'None Superhero',
-    superHeroName: result?.superHeroName || 'Unknown Hero',
-    spanishSuperHeroName: result?.spanishSuperHeroName || 'Héroe Desconocido',
-    vision: result?.vision || '',
-    spanishVision: result?.spanishVision || '',
-    processedAt: new Date().toISOString(),
-  };
+    const primaryId = payload?.userid;
+    
+    // 5. Update DynamoDB and save the final JSON result to S3
+    //const finalizationPromises = [];
 
-  const primaryId = payload?.userid;
-  if (primaryId) {
-    // 2.1 Update DynamoDB record removing userid from metadata
-    const updatePayload = { ...payload };
-    delete updatePayload.userid;
-    await updateItemInTable(primaryId, updatePayload);
+    if (primaryId) {
+      // Update DynamoDB record removing userid from metadata
+      const updatePayload = { ...payload };
+      delete updatePayload.userid;
+      await updateItemInTable(primaryId, updatePayload);
+    }
+
+    // const resultKey = `results/${key.replace(/^uploads\//, "").replace(/\.jpg$/i, "")}.json`;
+    // console.log(`Uploading final JSON result to S3 key: ${resultKey}`);
+    
+    // const putJsonCmd = new PutObjectCommand({
+    //     Bucket: BUCKET_NAME,
+    //     Key: resultKey,
+    //     Body: JSON.stringify(payload, null, 2),
+    //     ContentType: "application/json",
+    // });
+    // finalizationPromises.push(s3.send(putJsonCmd));
+
+    // await Promise.all(finalizationPromises);
+    console.log("Process completed successfully.");
+  } catch (error) {
+    console.error("An error occurred during the handler execution:", error);
+    throw error;
   }
-
-  // 3) Save to results bucket keyed by upload key
-  const resultKey = `results/${key.replace(/^uploads\//, "").replace(/\.jpg$/i, "")}.json`;
-  await new Upload({
-    client: s3,
-    params: {
-      Bucket: BUCKET_NAME,
-      Key: resultKey,
-      Body: Buffer.from(JSON.stringify(payload, null, 2)),
-      ContentType: "application/json",
-    },
-  }).done();
 };

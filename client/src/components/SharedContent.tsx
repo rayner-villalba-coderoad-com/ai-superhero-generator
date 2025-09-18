@@ -7,15 +7,14 @@ const SharedContent: React.FC<{ data: string }> = ({ data }) => {
   const { postData} = useAPI();
   const [language, setLanguage] = useState('en'); // Default to English
 
-  const  fetchData =   async (key: string) =>{
-    if (!key) return;
-    const newKey = `uploads/${key}.jpg`;
-    const response = await postData('result-url', {key: newKey});
-    const resultUrl = response.resultUrl;
+  const  fetchData =   async (id: string) =>{
+    if (!id) return;
+
+    const response = await postData('result-url', {id });
+    const { comicImage, vision } = response;
    
-    if (resultUrl && resultUrl !== '') {
-      const resJson = await fetch(resultUrl).then(r => r.json());
-      setUser(resJson);
+    if (comicImage && vision) {
+      setUser(response);
     }
   }
   useEffect(() => {
@@ -23,7 +22,7 @@ const SharedContent: React.FC<{ data: string }> = ({ data }) => {
       fetchData(data);
     }
 
-    //return () => { setUser(null); };
+    return () => { setUser(null); };
   }, [data]);
 
     

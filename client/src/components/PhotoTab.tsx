@@ -100,22 +100,23 @@ const PhotoTab: React.FC = () => {
     }
   };
 
-  const pollResult = async (key: string, attempts = 0) => {
+  const pollResult = async (id: string, attempts = 0) => {
     if (attempts > 100) {
       return;
     }
   
-    const response = await postData('result-url', {key: key});
-
-    if (response.status === 'Processing') {
+    const response = await postData('result-url', { id });
+    const { comicImage } = response;
+    console.log("Response: ", response);
+    if (!comicImage) {
       // Not ready yet — wait and poll again
-      setTimeout(() => pollResult(key, attempts + 1), 2000);
+      setTimeout(() => pollResult(id, attempts + 1), 2000);
       return;
     }
 
-    const { resultUrl } = response;
-    const resJson = await fetch(resultUrl).then(r => r.json());
-    setUserData(resJson);
+    //const { resultUrl } = response;
+    //const resJson = await fetch(resultUrl).then(r => r.json());
+    setUserData(response);
     setLoading(false);
     setActiveTab("share");
   }
@@ -131,11 +132,11 @@ const PhotoTab: React.FC = () => {
 
         // 1. Save data 
         const response = await postData('save-profile', payload);
-        const { uploadUrl, key } = response;
+        const { uploadUrl, userId, key } = response;
         //2. Upload image to S3 using the presigned URL
         const capturedImageBlob = dataURLtoBlob(capturedImage);
         await uploadImageViaPresignedUrl(uploadUrl, capturedImageBlob); 
-        await pollResult(key);
+        await pollResult(userId);
       } catch (error) {
         console.error("Error during upload and analysis:", error);
         setLoading(false);
