@@ -107,7 +107,6 @@ const PhotoTab: React.FC = () => {
   
     const response = await postData('result-url', { id });
     const { comicImage } = response;
-    console.log("Response: ", response);
     if (!comicImage) {
       // Not ready yet — wait and poll again
       setTimeout(() => pollResult(id, attempts + 1), 2000);

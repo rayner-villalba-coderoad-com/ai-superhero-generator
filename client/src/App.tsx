@@ -10,7 +10,7 @@ const ViewSwitcher = () => {
   const [searchParams] = useSearchParams();
 
   const currentKey = searchParams.get('key');
-  console.log('Current view from URL param "key":', currentKey); // Debugging line
+
   if (currentKey) {
     return <SharedContent data={currentKey} />;
   } else {
